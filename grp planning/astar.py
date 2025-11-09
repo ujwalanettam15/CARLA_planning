@@ -2,6 +2,7 @@ import carla
 import random
 import time
 from queue import PriorityQueue
+import json
 
 obstacles = []
 
@@ -61,6 +62,25 @@ def _near_goal(current_waypoint, goal, min_distance = 30.0):
         return True
 
     return False
+
+def generate_control_path(route, target_speed=10.0):
+    control_path = []
+
+    for wp in route:
+        transform = wp.transform
+        loc = transform.location
+        rot = transform.rotation
+
+        control_point = {
+            "x": loc.x,
+            "y": loc.y,
+            "z": loc.z,
+            "yaw": rot.yaw,        # heading in degrees
+            "speed": target_speed  # can be modified dynamically later
+        }
+        control_path.append(control_point)
+    
+    return control_path
 
 def a_star(start_waypoint, end_waypoint, new_obstacle=None, heuristic_func=euclidean_heuristic, max_distance=5000):
     start_node = AStarNode(start_waypoint, 0, heuristic_func(start_waypoint, end_waypoint))
@@ -190,8 +210,6 @@ def main():
         # End of manual waypoint selection
         print(f"Point A wp: {start_waypoint}")
         print(f"Point B wp: {end_waypoint}")
-        
-
 
         # Run A*
         route = a_star(start_waypoint, end_waypoint)
@@ -203,6 +221,21 @@ def main():
             return
 
         print(f"Route found with {len(route)} waypoints")
+
+        # Convert A* route into control-ready path
+        control_path = generate_control_path(route, target_speed=8.0)
+
+        # Example: Publish or send path to motion control module
+        # (Here we just print first few for verification)
+        print("First 5 control points (for motion control):")
+        for p in control_path[:5]:
+            print(p)
+
+        # Optional: Save path to JSON for external use
+
+        with open("astar_control_path.json", "w") as f:
+            json.dump(control_path, f, indent=2)
+        print("Control path saved to astar_control_path.json")
 
         # Keeping for debugging purposes
         # start_time = time.time()
