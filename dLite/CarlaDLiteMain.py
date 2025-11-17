@@ -54,7 +54,7 @@ firetruck = world.spawn_actor(firetruck_bp, point_a)
 # point_a = random.choice(spawn_points)
 # firetruck = world.spawn_actor(firetruck_bp, point_a)
 # Choose a random destination (point B)
-point_b = spawn_points[100]
+point_b = spawn_points[51]
 # point_b = random.choice(spawn_points)
 # while point_b.location == point_a.location:
 #     point_b = random.choice(spawn_points)
